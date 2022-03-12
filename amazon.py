@@ -6,13 +6,12 @@ from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 from time import sleep
 import data
-
+import csv
 
 s = Service(r"C:\Program Files (x86)\chromedriver.exe")
 url="https://www.amazon.de/"
 session = HTMLSession()
 class AmazonInformation:
-
 
     def __init__(self,) -> None:
         self.driver = webdriver.Chrome(service=s)
@@ -50,34 +49,35 @@ class AmazonInformation:
         return soup
 
     def get_deals(self, soup):
+        listOfProduct=[]
         products = soup.find_all('div', {'data-component-type': 's-search-result'})
-        counter=0
         for item in products:
             title = item.find('span', {'class': 'a-size-base-plus a-color-base'}).text.strip()
             link = item.find('a', {'class': 'a-link-normal s-no-outline'})['href']
             try:
                 price = item.find('span', {'class': 'a-price-whole'}).text.strip()
+
             except:
                 continue
-
             try:
                 reviews = item.find('span',{'class':'a-size-base s-underline-text'}).text.strip()
             except:
                 reviews = 0
-            image = item.find('img', {'class': 's-image'})['src']
-            response = session.get(image)
-            with open('image' + str(counter) + '.png', 'wb') as w:
-                w.write(response.content)
+            listOfProduct.append([title,price,reviews,'https://www.amazon.de/-/en' + link])
+        return listOfProduct
 
-            counter += 1
-            print('{} - Title: {}, Price: {}, Reviews: {},Link: {}'.format(counter,title,price,reviews,'https://www.amazon.de/-/en' + link))
-    
-
+    def write_to_file(self):
+        product = self.get_deals(self.get_data())
+        with open('ProductInformations.csv', 'w', newline='') as f:
+            TheWriter = csv.writer(f)
+            TheWriter.writerow(['Title, Price, Reviews,Link'])
+            print(TheWriter)
+            for infos in product:
+                TheWriter.writerow(infos)
+                print(f"{infos}\n")
 
 getinformation = AmazonInformation()
 getinformation.cookies_accept()
 getinformation.loggin('sample@sample.com', data.password)
 getinformation.search("schuhe")
-getinformation.get_deals(getinformation.get_data())
-
-
+getinformation.write_to_file()
