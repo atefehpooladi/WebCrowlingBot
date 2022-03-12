@@ -71,13 +71,7 @@ class AmazonInformation:
 
             counter += 1
             print('{} - Title: {}, Price: {}, Reviews: {},Link: {}'.format(counter,title,price,reviews,'https://www.amazon.de/-/en' + link))
-    def get_pages(self):
-        pages = self.driver.find_element(By.XPATH,'//a[@class="s-pagination-item s-pagination-next s-pagination-button s-pagination-separator"]').click()
-
-        if  pages == self.driver.find_element(By.XPATH,'//a[@class="s-pagination-item s-pagination-next s-pagination-disabled "]').click():
-            return
-        else:
-            return pages
+    
 
 
 getinformation = AmazonInformation()
